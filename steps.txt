@@ -1,6 +1,7 @@
 git init
 fastapi uvicorn
 
+
 endpoints:
     1. user registration
             a. already registered
