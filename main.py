@@ -5,11 +5,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import Request
 from pdf2image import convert_from_path
 import pytesseract
+from pytesseract import image_to_string
 from PIL import Image
 import tempfile
 import os
 
-
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 app = FastAPI()
 
@@ -30,10 +31,10 @@ async def register(username: str = Form(...), password: str = Form(...)):
 
 @app.post("/upload")
 async def upload_files(file: UploadFile=File(...)):
-    if not file.filename.endswith((".jpg",".jpeg")):
+    if not file.filename.endswith(".png"):
         raise HTTPException(status_code=400, detail="Only JPG and JPEG files are allowed.")
     
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg" if file.filename.endswith('.jpg') else ".jpeg") as temp_file:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".png" )as temp_file:
         temp_file.write(await file.read())
         temp_file_path = temp_file.name
 
