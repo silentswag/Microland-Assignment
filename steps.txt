@@ -26,3 +26,26 @@ keras OCR
 3. Q/A  
 pre trained model
 simple chat input and output
+
+flow
+upload file
+pdf2image
+tesseract
+
+pdf2image-> image->tesseract
+
+install pdf2image pillow
+
+
+
+
+pdf2image-> image->tesseract-> string texts-> QA model  (assuming the pre trained models takes in strings)
+else: use image_to_data from pytesseract
+
+
+now , install poppler for pdf2image
+
+
+ROAD BLOCK:
+popples bin not found
+so the jpg form of file is considered
