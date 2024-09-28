@@ -52,6 +52,33 @@ async def upload_files(file: UploadFile=File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred during OCR processing: {str(e)}")
     
+
+from models.longformer import process
+from models.AutoQA import generate_answers
+
+@app.get("/ask", response_class=HTMLResponse)
+async def upload_form(request: Request):
+    return templates.TemplateResponse("ask.html", {"request": request})
+
+def clean_text(text):
+    # Add any preprocessing steps here (e.g., removing unwanted characters, correcting spacing)
+    return text.strip()
+
+
+@app.post("/ask")
+async def ask_question(filename: str = Form(...), question: str = Form(...)):
+    ocr_texts = ocr_extracted_storage.get(filename)
     
-   
+    if not ocr_texts:
+        raise HTTPException(status_code=400, detail="No OCR extracted text found as input")
+
+    # Process the OCR text using the Longformer model
+    context = clean_text(ocr_texts)
     
+    # Generate answers using the QA model based on the processed context
+    answer = generate_answers(question, context)
+    
+    print("Reached main ask_question")
+    
+    return {"answer": answer}
+
