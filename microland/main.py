@@ -63,16 +63,24 @@ from models.AutoQA import generate_answers
 async def upload_form(request: Request):
     return templates.TemplateResponse("ask.html", {"request": request})
 
+def clean_text(text):
+    # Add any preprocessing steps here (e.g., removing unwanted characters, correcting spacing)
+    return text.strip()
+
+
 @app.post("/ask")
-async def ask_question(filename:str=Form(...),question:str= Form(...)):
-    ocr_texts=ocr_extracted_storage.get(filename)
-    if not ocr_texts:
-        raise HTTPException(detail="No ocr extracted text found as input")
+async def ask_question(filename: str = Form(...), question: str = Form(...)):
+    ocr_texts = ocr_extracted_storage.get(filename)
     
-    try:
-        encoded= process(ocr_texts)
-        answer= generate_answers(question,encoded)
-        return {"answer":answer}
-        print("reached main ask_quest")
-    except Exception as e:
-        raise HTTPException(detail="The ocr text couldnt be processed")
+    if not ocr_texts:
+        raise HTTPException(status_code=400, detail="No OCR extracted text found as input")
+
+    # Process the OCR text using the Longformer model
+    context = clean_text(ocr_texts)
+    
+    # Generate answers using the QA model based on the processed context
+    answer = generate_answers(question, context)
+    
+    print("Reached main ask_question")
+    
+    return {"answer": answer}

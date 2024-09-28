@@ -51,7 +51,7 @@
         <h1>OCR and Question Answering</h1>
         <form id="upload-form">
             <div class="input-box">
-                <label for="file">Upload File (PNG only):</label>
+                <label for="file">Upload File :</label>
                 <input type="file" id="file" name="file" accept=".png">
             </div>
             <button type="submit">Upload and Extract Text</button>
@@ -93,8 +93,12 @@
                 const result = await response.json();
 
                 if (response.ok) {
+                    // Update OCR Extracted Text
                     document.getElementById('ocr-text').value = result.text;
                     document.getElementById('ocr-result').dataset.filename = result.filename; // Store filename
+
+                    // Update Processed Text (assuming `processed_text` is returned by the API)
+                    
                 } else {
                     alert(result.detail);
                 }

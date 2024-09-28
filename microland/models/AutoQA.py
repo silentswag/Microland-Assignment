@@ -1,23 +1,16 @@
-from transformers import AutoTokenizer, AutoModelForQuestionAnswering
+from transformers import pipeline, AutoTokenizer, AutoModelForQuestionAnswering
 import torch
-
+model_name="distilbert-base-uncased-distilled-squad"
 # Load tokenizer and model
-tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
-model = AutoModelForQuestionAnswering.from_pretrained("bert-base-uncased")
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForQuestionAnswering.from_pretrained(model_name)
+qa_model = pipeline("question-answering",model=model, tokenizer=tokenizer)
 
-def generate_answers(question:str, context:str):
-    if isinstance(context, torch.Tensor):
-        # Convert tensor to a string, if it's a single element tensor
-        if context.numel() == 1:
-            context = str(context.item())
-        else:
-            # If it's a tensor with multiple elements, convert to list of strings
-            context = " ".join(map(str, context.tolist()))
-    elif isinstance(context, list):
-        # If context is a list, join it into a single string
-        context = " ".join(context)
-    elif not isinstance(context, str):
-        raise ValueError("Context must be a string, tensor, or list of strings")
+def generate_answers(question:str, context:str)-> str:
+    if not isinstance(question, str):
+        raise ValueError(f"Expected `question` to be a string, got {type(question)} instead.")
+    if not isinstance(context, str):
+        raise ValueError(f"Expected `context` to be a string, got {type(context)} instead.")
         # Tokenize and encode the inputs correctly
     inputs = tokenizer.encode_plus(
         question, 
@@ -37,7 +30,10 @@ def generate_answers(question:str, context:str):
     start_index = torch.argmax(start_scores)
     end_index = torch.argmax(end_scores) + 1
 
+    if start_index >= end_index or start_index < 0 or end_index > len(input_ids):
+        return "Answer not found or index out of range."
     # Decode the tokens back to the answer string
     answer = tokenizer.convert_tokens_to_string(
         tokenizer.convert_ids_to_tokens(input_ids[start_index:end_index])
     )
+    return answer if answer else "No valid answer found."
