@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload PNG File for OCR</title>
+    <link rel="stylesheet" href="/static/styles.css"> <!-- Link to your CSS file -->
+</head>
+<body>
+    <div class="container">
+        <h1>Upload a PNG File for OCR</h1>
+        <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+            <input type="file" id="file-input" name="file" accept=".png" required>
+            <button type="submit">Upload</button>
+        </form>
+        <div id="result" class="result">
+            <h2>OCR Extracted Text:</h2>
+            <p id="ocr-text"></p>
+        </div>
+        <div id="error" class="error">
+            <h2>Error:</h2>
+            <p id="error-text"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("Please select a file first.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const resultDiv = document.getElementById('result');
+                const errorDiv = document.getElementById('error');
+                resultDiv.style.display = 'none';
+                errorDiv.style.display = 'none';
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    document.getElementById('error-text').textContent = errorData.detail;
+                    errorDiv.style.display = 'block';
+                } else {
+                    const result = await response.json();
+                    document.getElementById('ocr-text').textContent = result.text || 'No text extracted.';
+                    resultDiv.style.display = 'block';
+                }
+            } catch (error) {
+                document.getElementById('error-text').textContent = `Error: ${error.message}`;
+                document.getElementById('error').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -8,16 +8,15 @@ import pytesseract
 from pytesseract import image_to_string
 from PIL import Image
 import tempfile
+import templates
 import os
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 app = FastAPI()
 
-# Set up Jinja2 templates
 templates = Jinja2Templates(directory="templates")
 
-# Serve static files (if needed)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
@@ -29,6 +28,12 @@ async def register(username: str = Form(...), password: str = Form(...)):
     # Here you would typically save the user information to a database
     return {"message": f"User {username} registered successfully!"}
 
+ocr_extracted_storage={}
+
+@app.get("/upload", response_class=HTMLResponse)
+async def upload_form(request: Request):
+    return templates.TemplateResponse("upload.html", {"request": request})
+
 @app.post("/upload")
 async def upload_files(file: UploadFile=File(...)):
     if not file.filename.endswith(".png"):
@@ -39,22 +44,30 @@ async def upload_files(file: UploadFile=File(...)):
         temp_file_path = temp_file.name
 
     try:
-    # Open the image file
         image = Image.open(temp_file_path)
-         # Perform OCR on the image
         ocr_extracted = pytesseract.image_to_string(image)
 
+        ocr_extracted_storage[file.filename]=ocr_extracted
         return {"filename": file.filename, "text": ocr_extracted.strip()}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred during OCR processing: {str(e)}")
     
-    
-        # Perform OCR on the image
-"""     ocr_extracted = pytesseract.image_to_string(image)
-            extracted+= pytesseract.image_to_string(image)+"\n"
-        return {"filename": file.filename, "text": ocr_extracted.strip()}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An error occurred during OCR processing: {str(e)}")"""
 
+
+
+from models.longformer import process
+from microland.models.AutoQA import generate_answers
+
+@app.post("/ask")
+async def ask_question(filename:str=Form(...),question:str= Form(...)):
+    ocr_texts=ocr_extracted_storage.get(filename)
+    if not ocr_texts:
+        raise HTTPException(detail="No ocr extracted text found as input")
     
+    try:
+        encoded= process(ocr_texts)
+        answer= generate_answers(question,encoded)
+        return answer
+    except Exception as e:
+        raise HTTPException(detail="The ocr text couldnt be processed")

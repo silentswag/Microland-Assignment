@@ -1,6 +1,0 @@
-https://pypi.org/project/easyocr/1.1.4/
-https://www.jaided.ai/easyocr/tutorial/
-tesseract doesnt work directly on files so
-***** https://medium.com/@dr.booma19/extracting-text-from-pdf-files-using-ocr-a-step-by-step-guide-with-python-code-becf221529ef
-
-focus on pdf files

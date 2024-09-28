@@ -1,0 +1,74 @@
+git init
+fastapi uvicorn
+
+
+endpoints:
+    1. user registration
+            a. already registered
+            b. invalid cred
+            c. successful login
+    2. upload file page
+    3. extract and answer questions page
+
+
+DESIGN
+
+1. user creation
+    a. code for simple front end having user registration form
+JWT or oauth2
+authentication and authorization  
+
+2. upload file 
+simple button
+OCR implementation
+keras OCR
+
+3. Q/A  
+pre trained model
+simple chat input and output
+
+flow
+upload file
+pdf2image xx
+tesseract
+
+pdf2image-> image->tesseract
+
+install pdf2image pillowxxx
+
+
+
+
+pdf2image-> image->tesseract-> string texts-> QA model  (assuming the pre trained models takes in strings)
+else: use image_to_data from pytesseract
+
+
+now , install poppler for pdf2imagexxx
+
+
+ROAD BLOCK:
+popples bin not foundx
+so the jpg form of file is considered ******
+(screenhot of the file is uploaded)
+
+
+RB: tesseract path issues solves by declaring the exact path--> text recognition done
+
+Answer question endpoint:
+1. store the ocr_extracted text in a storage which is globally acessible
+2. use a transformer: BERT or GPT or distil bert,
+
+
+Saturday
+1. defines global access of ocr_extracted
+2. exploring BERT QA model XXXXX
+
+https://huggingface.co/docs/transformers/en/tasks/question_answering
+
+**********https://huggingface.co/docs/transformers/en/model_doc/longformer#transformers.LongformerForQuestionAnswering
+
+install transformers , huggingface-hub, tokenizers\
+
+
+from no where pytorch for pre trained model download happened
+sentence piece
