@@ -3,62 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload PNG File for OCR</title>
-    <link rel="stylesheet" href="/static/styles.css"> <!-- Link to your CSS file -->
+    <title>OCR and QA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+        .input-box {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="file"],
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result-box {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Upload a PNG File for OCR</h1>
-        <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
-            <input type="file" id="file-input" name="file" accept=".png" required>
-            <button type="submit">Upload</button>
+        <h1>OCR and Question Answering</h1>
+        <form id="upload-form">
+            <div class="input-box">
+                <label for="file">Upload File (PNG only):</label>
+                <input type="file" id="file" name="file" accept=".png">
+            </div>
+            <button type="submit">Upload and Extract Text</button>
         </form>
-        <div id="result" class="result">
-            <h2>OCR Extracted Text:</h2>
-            <p id="ocr-text"></p>
+        
+        <div id="ocr-result" class="result-box">
+            <h3>OCR Extracted Text:</h3>
+            <textarea id="ocr-text" rows="10" readonly></textarea>
         </div>
-        <div id="error" class="error">
-            <h2>Error:</h2>
-            <p id="error-text"></p>
+
+        <form id="qa-form">
+            <div class="input-box">
+                <label for="question">Ask a Question:</label>
+                <input type="text" id="question" name="question" placeholder="Enter your question here">
+            </div>
+            <button type="submit">Get Answer</button>
+        </form>
+
+        <div id="qa-result" class="result-box">
+            <h3>Answer:</h3>
+            <div id="answer"></div>
         </div>
     </div>
 
     <script>
-        document.getElementById('upload-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const fileInput = document.getElementById('file-input');
-            const file = fileInput.files[0];
-            if (!file) {
-                alert("Please select a file first.");
-                return;
-            }
-
+        // Handle file upload and OCR extraction
+        document.getElementById('upload-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            const fileInput = document.getElementById('file');
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', fileInput.files[0]);
 
             try {
                 const response = await fetch('/upload', {
                     method: 'POST',
                     body: formData
                 });
+                const result = await response.json();
 
-                const resultDiv = document.getElementById('result');
-                const errorDiv = document.getElementById('error');
-                resultDiv.style.display = 'none';
-                errorDiv.style.display = 'none';
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    document.getElementById('error-text').textContent = errorData.detail;
-                    errorDiv.style.display = 'block';
+                if (response.ok) {
+                    document.getElementById('ocr-text').value = result.text;
+                    document.getElementById('ocr-result').dataset.filename = result.filename; // Store filename
                 } else {
-                    const result = await response.json();
-                    document.getElementById('ocr-text').textContent = result.text || 'No text extracted.';
-                    resultDiv.style.display = 'block';
+                    alert(result.detail);
                 }
             } catch (error) {
-                document.getElementById('error-text').textContent = `Error: ${error.message}`;
-                document.getElementById('error').style.display = 'block';
+                alert('An error occurred during file upload.');
+            }
+        });
+
+        // Handle QA query
+        document.getElementById('qa-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const filename = document.getElementById('ocr-result').dataset.filename;
+            const question = document.getElementById('question').value;
+
+            if (!filename) {
+                alert('Please upload a file and extract text first.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        filename: filename,
+                        question: question
+                    })
+                });
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('answer').textContent = result.answer;
+                } else {
+                    alert(result.detail);
+                }
+            } catch (error) {
+                alert('An error occurred while asking the question.');
             }
         });
     </script>

@@ -33,3 +33,6 @@ After obtaining the encoded representation from Longformer, pass it to a generat
 
 
 https://huggingface.co/docs/transformers/en/model_doc/gpt2#transformers.GPT2ForQuestionAnswering
+
+
+https://stackoverflow.com/questions/52946920/bool-value-of-tensor-with-more-than-one-value-is-ambiguous-in-pytorch

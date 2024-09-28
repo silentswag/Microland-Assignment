@@ -57,7 +57,11 @@ async def upload_files(file: UploadFile=File(...)):
 
 
 from models.longformer import process
-from microland.models.AutoQA import generate_answers
+from models.AutoQA import generate_answers
+
+@app.get("/ask", response_class=HTMLResponse)
+async def upload_form(request: Request):
+    return templates.TemplateResponse("ask.html", {"request": request})
 
 @app.post("/ask")
 async def ask_question(filename:str=Form(...),question:str= Form(...)):
@@ -68,6 +72,7 @@ async def ask_question(filename:str=Form(...),question:str= Form(...)):
     try:
         encoded= process(ocr_texts)
         answer= generate_answers(question,encoded)
-        return answer
+        return {"answer":answer}
+        print("reached main ask_quest")
     except Exception as e:
         raise HTTPException(detail="The ocr text couldnt be processed")

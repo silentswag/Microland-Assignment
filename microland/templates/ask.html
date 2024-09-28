@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR QA Frontend</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OCR Question Answering</h1>
+        <form id="qaForm">
+            <label for="filename">Filename:</label>
+            <input type="text" id="filename" name="filename" placeholder="e.g., Screenshot (148).png" required>
+            <label for="question">Your Question:</label>
+            <textarea id="question" name="question" rows="4" placeholder="Ask your question here..." required></textarea>
+            <button type="submit">Ask</button>
+        </form>
+        <div id="result" class="result" style="display: none;">
+            <h2>Answer</h2>
+            <p id="answer"></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("qaForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const filename = document.getElementById("filename").value;
+            const question = document.getElementById("question").value;
+            
+            try {
+                const response = await fetch("/ask", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: new URLSearchParams({ filename, question })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById("result").style.display = "block";
+                    document.getElementById("answer").textContent = data.answer;
+                } else {
+                    document.getElementById("result").style.display = "block";
+                    document.getElementById("answer").textContent = "Error: " + response.statusText;
+                }
+            } catch (error) {
+                document.getElementById("result").style.display = "block";
+                document.getElementById("answer").textContent = "Error: " + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
