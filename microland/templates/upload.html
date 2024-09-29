@@ -95,9 +95,9 @@
                 if (response.ok) {
                     // Update OCR Extracted Text
                     document.getElementById('ocr-text').value = result.text;
-                    document.getElementById('ocr-result').dataset.filename = result.filename; // Store filename
+                    document.getElementById('ocr-result').dataset.filename = result.filename; 
 
-                    // Update Processed Text (assuming `processed_text` is returned by the API)
+                    
                     
                 } else {
                     alert(result.detail);

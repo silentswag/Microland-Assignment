@@ -72,3 +72,8 @@ install transformers , huggingface-hub, tokenizers\
 
 from no where pytorch for pre trained model download happened
 sentence piece
+
+
+
+authlib
+passlib bcrypt

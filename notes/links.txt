@@ -36,3 +36,12 @@ https://huggingface.co/docs/transformers/en/model_doc/gpt2#transformers.GPT2ForQ
 
 
 https://stackoverflow.com/questions/52946920/bool-value-of-tensor-with-more-than-one-value-is-ambiguous-in-pytorch
+
+
+https://authlib.org/
+
+
+https://docs.authlib.org/en/latest/client/fastapi.html
+
+
+https://docs.authlib.org/en/latest/client/index.html

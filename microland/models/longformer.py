@@ -1,4 +1,4 @@
-from transformers import LongformerTokenizer, LongformerModel
+"""from transformers import LongformerTokenizer, LongformerModel
 import torch
 
 LONGFORMER_MODEL_NAME = "allenai/longformer-base-4096"
@@ -20,3 +20,4 @@ def process(text):
     cls_embedding_str = ', '.join(map(str, cls_embedding.tolist()))
     
     return cls_embedding_str
+"""

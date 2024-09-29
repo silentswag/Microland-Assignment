@@ -1,7 +1,7 @@
 from transformers import pipeline, AutoTokenizer, AutoModelForQuestionAnswering
 import torch
 model_name="distilbert-base-uncased-distilled-squad"
-# Load tokenizer and model
+#loading tokenizer and model
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForQuestionAnswering.from_pretrained(model_name)
 qa_model = pipeline("question-answering",model=model, tokenizer=tokenizer)
@@ -11,7 +11,7 @@ def generate_answers(question:str, context:str)-> str:
         raise ValueError(f"Expected `question` to be a string, got {type(question)} instead.")
     if not isinstance(context, str):
         raise ValueError(f"Expected `context` to be a string, got {type(context)} instead.")
-        # Tokenize and encode the inputs correctly
+        
     inputs = tokenizer.encode_plus(
         question, 
         context, 
@@ -21,18 +21,16 @@ def generate_answers(question:str, context:str)-> str:
     )
     input_ids = inputs["input_ids"].tolist()[0]
 
-    # Get model outputs
+    #model outputs
     outputs = model(**inputs)
     start_scores = outputs.start_logits
     end_scores = outputs.end_logits
 
-    # Get the most likely start and end of the answer
     start_index = torch.argmax(start_scores)
     end_index = torch.argmax(end_scores) + 1
 
     if start_index >= end_index or start_index < 0 or end_index > len(input_ids):
         return "Answer not found or index out of range."
-    # Decode the tokens back to the answer string
     answer = tokenizer.convert_tokens_to_string(
         tokenizer.convert_ids_to_tokens(input_ids[start_index:end_index])
     )
